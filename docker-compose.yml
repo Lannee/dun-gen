@@ -1,0 +1,51 @@
+services:
+  frontend:
+    image: react-dev
+    build:
+      context: frontend
+    volumes:
+      - ./frontend/src:/app/src
+    ports:
+      - 3000:3000
+
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  minio:
+    image: minio/minio:latest
+    command: server --address :9000 /data
+    ports:
+      - "9000:9000"  # MinIO API port
+      - "9001:9001"  # MinIO Console port
+    volumes:
+      - minio_data:/data  # Persistent storage
+
+  ollama-neuro:
+    image: ollama/ollama
+    command: ollama pull llama3.2
+    container_name: ollama
+    ports:
+      - 11434:11434
+    volumes:
+      - ollama:/root/.ollama
+
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - minio
+      - ollama-neuro
+
+volumes:
+  postgresql:
+  minio_data:
+  ollama:
