@@ -1,0 +1,23 @@
+spring:
+    datasource:
+        driver-class-name: org.postgresql.Driver
+        url: jdbc:postgresql://db:5432/hibernatedb
+        username: hibernateuser
+        password: 12345
+    jpa:
+        database: postgresql
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+        show-sql: true
+        generate-ddl: true
+    security:
+        filter:
+            orger: 10
+    jwt:
+        secret: 14ae60b1b1bcd1c223857460f0d25fcbd3fbf80f
+minio:
+  endpoint: http://172.18.0.4:9000
+  accessKey:  minioadmin # Login Account
+  secretKey:  minioadmin # Login Password
+  bucket-name: commons # Bucket Name
+  image-size: 10485760 #  Maximum size of picture file
+  file-size: 1073741824 #  Maximum file size
