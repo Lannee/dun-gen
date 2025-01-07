@@ -1,0 +1,14 @@
+.introduction {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+    color: white;
+}
+
+.introduction h3 {
+    margin: 0;
+}
+
+.introduction strong {
+    margin: 0 0 0 15px;
+}
