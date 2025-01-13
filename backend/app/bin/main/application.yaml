@@ -21,3 +21,6 @@ minio:
   bucket-name: commons # Bucket Name
   image-size: 10485760 #  Maximum size of picture file
   file-size: 1073741824 #  Maximum file size
+
+ai:
+  url: http://
