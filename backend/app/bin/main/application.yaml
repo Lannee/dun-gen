@@ -87,7 +87,8 @@ prompts:
     Use the folowing description as a base for generation: {0}
   generate_base: >
     generate Dungeons and Dragons 5 edition character as a json sample with the following scheme:
-    where: {0}
+    where: 
+    {0}
 
     {1}
 

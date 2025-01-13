@@ -76,7 +76,7 @@ public class GeneratorService {
                 ...
             ]
         }
-    """;
+        """;
     
     private final String character_format_explanation = """
         name: The character's name.
