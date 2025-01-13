@@ -1,0 +1,61 @@
+html, body, #root, .App {
+	height: 100%;
+    height: 100vh;
+}
+
+body { 
+  	margin: 0;
+}
+
+#canvas {
+	background-color: #343e4d;
+}
+
+#canvas, .addedCanvas {
+	padding: 10px;
+	border-radius: 10%;
+    margin: 50px auto 0 auto;
+}
+
+#canvas {
+    z-index: 4;
+    position: relative;
+}
+
+.addedCanvas {
+    z-index: 5;
+    position: absolute;
+    /* left: 50%; */
+    transform: translateX(-100%) translateY(0%);
+}
+
+.tableButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    /* margin: 5px 0 5px 0; */
+    align-items: center;
+}
+
+.absolute-top-right {
+    position: absolute; /* Enables absolute positioning */
+    top: 12px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    width: 200px; /* Set width as needed */
+    padding: 10px; /* Padding for content */
+    background-color: #3e9ea1; /* Background color for visibility */
+    border-radius: 5px;
+    text-align: center;
+    color: black;
+}
+
+/* Ensure the header background remains solid */
+.p-datatable .p-datatable-thead > tr > th {
+    background-color: #2a323d; /* Set your desired background color */
+    transition: background-color 0.3s ease; /* Optional: smooth transition */
+}
+
+/* Prevent transparency on hover */
+.p-datatable .p-datatable-thead > tr > th:hover {
+    background-color: #334968; /* Change to a slightly darker shade on hover */
+}   

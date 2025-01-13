@@ -1,0 +1,11 @@
+.App {
+    background: url(../img/background-2.jpg) no-repeat fixed, url(../img/background-2.jpg) no-repeat right fixed;
+    background-size: 50% 100%;
+}
+
+@media screen and (max-width:800px) {
+    .App {
+        background: url(../img/background-2.jpg) no-repeat right fixed;
+        background-size: 100%;
+    }
+}
