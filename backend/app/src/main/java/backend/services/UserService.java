@@ -3,6 +3,7 @@ package backend.services;
 import java.math.BigInteger; 
 import java.security.MessageDigest; 
 import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,6 @@ import backend.DTO.UsersCreatedDTO;
 import backend.DTO.UsersDTO;
 import backend.exceptions.UserAlreadyExists;
 import backend.model.User;
-import backend.model.UsersAdminStatus;
 import backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -59,10 +59,12 @@ public class UserService {
             throw new UserAlreadyExists(req.getName());
         }
 
+        String salt = generateSalt();
+
         User user = User.builder()
                 .name(req.getName())
-                .password(encryptViaSHA384(req.getPassword()))
-                .adminStatus(UsersAdminStatus.USER)
+                .password(encryptViaSHA384(req.getPassword() + salt))
+                .salt(salt)
                 .build();
 
         usersRepository.save(user);
@@ -73,5 +75,11 @@ public class UserService {
         User user = usersRepository.getReferenceById(id);
 
         return user;
+    }
+
+    private String generateSalt() {
+        byte[] saltBytes = new byte[4];
+        new Random().nextBytes(saltBytes);
+        return new String(saltBytes);
     }
 }

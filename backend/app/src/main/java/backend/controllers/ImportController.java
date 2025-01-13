@@ -32,50 +32,50 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @RequestMapping(path = "/api/import", produces = { "application/json" })
 public class ImportController {
-    private final JwtUtils jwtUtils;
-    private final ImportService importService;
-    private final UserService userService;
-    private final MinioService minioService;
+    // private final JwtUtils jwtUtils;
+    // private final ImportService importService;
+    // private final UserService userService;
+    // private final MinioService minioService;
 
-    @PostMapping("/file")
-    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("token") TokenDTO token)
-            throws IOException, DoesNotExistException {
+    // @PostMapping("/file")
+    // public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("token") TokenDTO token)
+    //         throws IOException, DoesNotExistException {
 
-        TokenValidator validator = new TokenValidator(jwtUtils).validateToken(token.getToken());
+    //     TokenValidator validator = new TokenValidator(jwtUtils).validateToken(token.getToken());
 
-        return ControllerExecutor.execute(validator, () -> {
-            ImportDTO result = importService.processYamlFile(file, token);
+    //     return ControllerExecutor.execute(validator, () -> {
+    //         ImportDTO result = importService.processYamlFile(file, token);
 
-            return ResponseEntity.ok().body(result);
-        });
-    }
+    //         return ResponseEntity.ok().body(result);
+    //     });
+    // }
 
-    @PostMapping("/history")
-    public ResponseEntity<?> getHistory(@RequestBody TokenDTO token) {
-        TokenValidator validator = new TokenValidator(jwtUtils).validateToken(token.getToken());
+    // @PostMapping("/history")
+    // public ResponseEntity<?> getHistory(@RequestBody TokenDTO token) {
+    //     TokenValidator validator = new TokenValidator(jwtUtils).validateToken(token.getToken());
 
-        return ControllerExecutor.execute(validator, () -> {
-            List<ImportDTO> result = importService.getImports(token);
+    //     return ControllerExecutor.execute(validator, () -> {
+    //         List<ImportDTO> result = importService.getImports(token);
         
-            return ResponseEntity.ok().body(result);
-        });
-    }
+    //         return ResponseEntity.ok().body(result);
+    //     });
+    // }
 
-    @PostMapping("/download/{objectName}")
-    public ResponseEntity<?> downloadFile(@RequestBody TokenDTO token, @PathVariable String objectName) throws NotFoundException {
-        TokenValidator validator = new TokenValidator(jwtUtils).validateToken(token.getToken());
+    // @PostMapping("/download/{objectName}")
+    // public ResponseEntity<?> downloadFile(@RequestBody TokenDTO token, @PathVariable String objectName) throws NotFoundException {
+    //     TokenValidator validator = new TokenValidator(jwtUtils).validateToken(token.getToken());
 
-        return ControllerExecutor.execute(validator, () -> {
-            try {
-            InputStreamResource resource = new InputStreamResource(minioService.getObject("", objectName));
-                return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + objectName + "\"")
-                    .body(resource);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException("Error downlaoding file", e);
-            }
-        });
-    }
+    //     return ControllerExecutor.execute(validator, () -> {
+    //         try {
+    //         InputStreamResource resource = new InputStreamResource(minioService.getObject("", objectName));
+    //             return ResponseEntity.ok()
+    //                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
+    //                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + objectName + "\"")
+    //                 .body(resource);
+    //         } catch (Exception e) {
+    //             e.printStackTrace();
+    //             throw new RuntimeException("Error downlaoding file", e);
+    //         }
+    //     });
+    // }
 }

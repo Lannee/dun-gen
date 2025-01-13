@@ -7,12 +7,10 @@ import java.util.Optional;
 import java.util.List;
 
 import backend.model.User;
-import backend.model.UsersAdminStatus;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findAll();
-    List<User> findByAdminStatus(UsersAdminStatus status);
     Optional<User> findByName(String username);
     boolean existsByName(String username);
 }

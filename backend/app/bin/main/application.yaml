@@ -22,5 +22,75 @@ minio:
   image-size: 10485760 #  Maximum size of picture file
   file-size: 1073741824 #  Maximum file size
 
-ai:
-  url: http://
+prompts:
+  character_json_format: >
+    {
+        name: "",
+        class_name: "",
+        background: "",
+        alignment: "",
+        ability_scores: {
+            strength: 1,
+            dexterity: 1,
+            constitution: 1,
+            intelligence: 1,
+            wisdom: 1,
+            charisma: 1
+        },
+        skills: {
+            acrobatics: 1,
+            athletics: 1,
+            insight: 1,
+            intimidation: 1,
+            nature: 1,
+            perception: 1,
+            survival: 1
+        },
+        equipment: [
+            {
+                name: "",
+                description: ""
+            },
+            ...
+        ],
+        features_and_traits: [
+            {
+                name: "",
+                description: ""
+            },
+            ...
+        ],
+        personality: {
+            traits: [
+                "", 
+                ...
+            ],
+            backstory: ""
+        },
+        goals: [
+            "", 
+            ...
+        ]
+    }
+  character_format_explanation: >
+    name: The character's name.
+    class_name: The character's class (e.g., Warrior, Mage).
+    background: The character's background (e.g., Noble, Outlander).
+    alignment: The character's moral alignment (e.g., Lawful Good).
+    ability_scores: An object containing ability scores such as strength, dexterity, etc.
+    skills: An object containing skill proficiency levels.
+    equipment: An array of objects representing the character's equipment.
+    features_and_traits: An array of objects detailing special features and traits.
+    personality: An object containing personality traits and backstory.
+    goals: An array of strings representing the character's goals.
+  use_preset_prompt: >
+    Use the folowing description as a base for generation: {0}
+  generate_base: >
+    generate Dungeons and Dragons 5 edition character as a json sample with the following scheme:
+    where: {0}
+
+    {1}
+
+    {2}
+    respond just with generated json, no extra comments needed. Please
+    
