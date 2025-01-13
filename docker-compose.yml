@@ -13,6 +13,10 @@ services:
     restart: always
     volumes:
       - postgresql:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "hibernatedb"
+      POSTGRES_USER: "hibernateuser"
+      POSTGRES_PASSWORD: "12345"
     ports:
       - "5432:5432"
 
@@ -25,15 +29,6 @@ services:
     volumes:
       - minio_data:/data  # Persistent storage
 
-  ollama-neuro:
-    image: ollama/ollama
-    command: ollama pull llama3.2
-    container_name: ollama
-    ports:
-      - 11434:11434
-    volumes:
-      - ollama:/root/.ollama
-
   backend:
     build:
       context: backend
@@ -43,7 +38,6 @@ services:
     depends_on:
       - db
       - minio
-      - ollama-neuro
 
 volumes:
   postgresql:
