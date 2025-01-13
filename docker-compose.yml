@@ -1,12 +1,12 @@
 services:
-  frontend:
-    image: react-dev
-    build:
-      context: frontend
-    volumes:
-      - ./frontend/src:/app/src
-    ports:
-      - 3000:3000
+  # frontend:
+  #   image: react-dev
+  #   build:
+  #     context: frontend
+  #   volumes:
+  #     - ./frontend/src:/app/src
+  #   ports:
+  #     - 3000:3000
 
   db:
     image: postgres
@@ -14,7 +14,7 @@ services:
     volumes:
       - postgresql:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
   minio:
     image: minio/minio:latest

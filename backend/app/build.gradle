@@ -66,6 +66,9 @@ dependencies {
     // https://mvnrepository.com/artifact/io.minio/minio
     implementation group: 'io.minio', name: 'minio', version: '8.5.13' 
 
+    // https://mvnrepository.com/artifact/org.springframework/spring-webflux
+    implementation group: 'org.springframework', name: 'spring-webflux', version: '6.2.1'
+
 
     // Lombok dependency
     compileOnly 'org.projectlombok:lombok:1.18.30'
