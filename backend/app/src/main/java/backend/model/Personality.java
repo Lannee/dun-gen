@@ -6,8 +6,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Embeddable
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Personality {
 
     @ElementCollection

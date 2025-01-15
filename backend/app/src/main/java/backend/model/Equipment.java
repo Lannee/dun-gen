@@ -1,11 +1,14 @@
 package backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Table(name = "equipment")
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Equipment {
 
     @Id

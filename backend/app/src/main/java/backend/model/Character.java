@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Entity
 @Table(name = "characters")
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Character {
 
     @Id
@@ -31,7 +33,7 @@ public class Character {
     private String alignment;
 
     @Embedded
-    private Abilities abilityScores;
+    private Abilities ability_scores;
 
     @Embedded
     private Skills skills;
@@ -42,7 +44,7 @@ public class Character {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "character_id")
-    private List<FeatureAndTrait> featuresAndTraits;
+    private List<FeatureAndTrait> features_and_traits;
 
     @Embedded
     private Personality personality;
@@ -53,6 +55,7 @@ public class Character {
     private List<String> goals;
 
     public static Character fromJson(String jsonCharacter) throws JsonMappingException, JsonProcessingException {
+        System.out.println(jsonCharacter);
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(jsonCharacter, Character.class);
     }

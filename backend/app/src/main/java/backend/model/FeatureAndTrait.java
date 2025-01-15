@@ -1,9 +1,12 @@
 package backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "features_and_traits")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FeatureAndTrait {
 
     @Id

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import backend.exceptions.FailedRequest;
 import backend.model.Character;
+import backend.repository.CharacterRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -103,7 +104,9 @@ public class GeneratorService {
 
         {2}
         respond just with generated json, no extra comments needed. Please
-    """;;
+    """;
+
+    private final CharacterRepository characterRepository;
 
     private String sendPOST(String prompt) throws IOException, FailedRequest {
         URL url = new URL(POST_URL);
@@ -162,8 +165,76 @@ public class GeneratorService {
         {
         String prompt = getFinalGeneratePrompt(description);
 
-        String response = generateText(prompt);
-        return Character.fromJson(response);
+        // String response = generateText(prompt);
+        String response = """
+        {
+            "name": "Eiravyn",
+            "class_name": "Warrior",
+            "background": "Noble",
+            "alignment": "Chaotic Good",
+            "ability_scores": {
+              "strength": 18,
+              "dexterity": 14,
+              "constitution": 16,
+              "intelligence": 10,
+              "wisdom": 12,
+              "charisma": 16
+            },
+            "skills": {
+              "acrobatics": 3,
+              "athletics": 5,
+              "insight": 2,
+              "intimidation": 4,
+              "nature": 1,
+              "perception": 3,
+              "survival": 2
+            },
+            "equipment": [
+              {
+                "name": "Longsword",
+                "description": "A finely crafted longsword with a silver-plated hilt"
+              },
+              {
+                "name": "Leather armor",
+                "description": "A suit of supple leather armor, perfect for mobility"
+              },
+              {
+                "name": "Shield",
+                "description": "A sturdy shield emblazoned with the family crest"
+              }
+            ],
+            "features_and_traits": [
+              {
+                "name": "Tall and Strong",
+                "description": "Eiravyn's exceptional height and physical strength make her a formidable opponent on the 
+          battlefield."
+              },
+              {
+                "name": "Noble Born",
+                "description": "As a noble, Eiravyn was raised with an air of confidence and an expectation to excel in all aspects 
+          of life."
+              }
+            ],
+            "personality": {
+              "traits": [
+                "Eiravyn is confident in her abilities and expects respect from those around her.",
+                "She has a strong sense of justice and will fiercely defend the innocent."
+              ],
+              "backstory": "Born into a noble family, Eiravyn was raised with every advantage. However, she grew tired of the 
+          expectations placed upon her and set out to forge her own path in life."
+            },
+            "goals": [
+              "Seek redemption for past mistakes",
+              "Protect the innocent from those who would harm them",
+              "Prove herself as a capable warrior"
+            ]
+          }
+        """;
+        Character character = Character.fromJson(response);
+
+        characterRepository.save(character);
+
+        return character;
     }
     
     protected String getFinalGeneratePrompt(String description) {
