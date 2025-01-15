@@ -3,7 +3,10 @@ package backend.services;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -17,6 +20,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.stereotype.Service;
@@ -30,7 +34,11 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class GeneratorService {
+    private MinioService minioService;
+
     private static final String POST_URL = "http://ollama:11434/api/generate";
+    private static final String STABILITY_API_URL = "https://api.stability.ai/v2beta/stable-image/generate/sd3";
+    private static final String AUTHORIZATION_TOKEN = "Bearer TOKEN";
 
     private String sendPOST(String prompt) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
@@ -55,37 +63,56 @@ public class GeneratorService {
         String responseText = jsonNode.get("response").asText();
 
         return responseText;
-
-        // URL url = new URL(POST_URL);
-        // HttpURLConnection con = (HttpURLConnection) url.openConnection();
-
-        // con.setRequestProperty("Content-Type", "application/json;");
-        // con.setConnectTimeout(20000);
-        // con.setReadTimeout(20000);
-        // con.setDoOutput(true); // Ensure doOutput is true for POST requests
-        // System.out.println("Настроено");
-
-        // // Write JSON payload to output stream
-        // byte[] postData = jsonInputString.getBytes(StandardCharsets.UTF_8);
-
-        // try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-        //     wr.write(postData);
-        // }
-        // System.out.println("Отправлено");
-     
-        // try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"))) {
-        //     String inputLine;
-        //     while ((inputLine = in.readLine()) != null) {
-        //         System.out.println(inputLine);
-        //     }
-        // }
-
-        // Print result
-        // return response.toString();
-        // return "";
     }
     
     public String generateText(String request) throws IOException, FailedRequest, InterruptedException {
         return sendPOST(request);
+    }
+
+    private static String generateImage(String prompt) throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+
+        String boundary = "----WebKitFormBoundary" + System.currentTimeMillis();
+        String CRLF = "\r\n"; // Line separator required by multipart/form-data.
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(STABILITY_API_URL))
+                .header("Authorization", AUTHORIZATION_TOKEN)
+                .header("Accept", "image/*")
+                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .POST(HttpRequest.BodyPublishers.ofString(
+                        "--" + boundary + CRLF +
+                        "Content-Disposition: form-data; name=\"prompt\"" + CRLF +
+                        CRLF +
+                        prompt + CRLF +
+                        "--" + boundary + CRLF +
+                        "Content-Disposition: form-data; name=\"output_format\"" + CRLF +
+                        CRLF +
+                        "jpeg" + CRLF +
+                        "--" + boundary + "--" + CRLF
+                ))
+                .build();
+
+        HttpResponse<InputStream> response = client.send(request, BodyHandlers.ofInputStream());
+
+        if (response.statusCode() == 200) {
+            // Save image locally
+            File outputFile = new File("./lighthouse.jpeg");
+            try (InputStream inputStream = response.body();
+                 FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+            }
+            return outputFile.getAbsolutePath();
+        }
+
+        return "Failed to generate hero apperance image.";
+    }
+
+    public String getGeneratedImage(String prompt) {
+        // return minioService.putObject("", new LinkedList<>().add(generateImage(prompt)));
     }
 }
