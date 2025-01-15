@@ -15,7 +15,7 @@ spring:
     jwt:
         secret: 14ae60b1b1bcd1c223857460f0d25fcbd3fbf80f
 minio:
-  endpoint: http://172.18.0.4:9000
+  endpoint: http://minio:9000
   accessKey:  minioadmin # Login Account
   secretKey:  minioadmin # Login Password
   bucket-name: commons # Bucket Name

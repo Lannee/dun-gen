@@ -24,12 +24,16 @@ services:
 
   minio:
     image: minio/minio:latest
+    container_name: minio
     command: server --address :9000 /data
     ports:
       - "9000:9000"  # MinIO API port
       - "9001:9001"  # MinIO Console port
     volumes:
       - minio_data:/data  # Persistent storage
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     networks:
       - minio-back
 

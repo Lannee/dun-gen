@@ -1,34 +1,19 @@
 package backend.services;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.concurrent.CompletableFuture;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,7 +32,7 @@ public class GeneratorService {
 
     private static final String POST_URL = "http://ollama:11434/api/generate";
     private static final String STABILITY_API_URL = "https://api.stability.ai/v2beta/stable-image/generate/sd3";
-    private static final String AUTHORIZATION_TOKEN = "Bearer TOKEN";
+    private static final String AUTHORIZATION_TOKEN = "Bearer "; // sk-gNyYRwwMeJMiDwjM32pyMesqAXMcy66nARA44fIJqeNCo4fa
 
     private final String characterJsonFormat = "{name: '', level: 1, experience: 0, class_name: '', race: '', background: '', alignment: '', ability_scores: {strength: 1, dexterity: 1, constitution: 1, intelligence: 1, wisdom: 1, charisma: 1}, skills: {acrobatics: 1, athletics: 1, insight: 1, intimidation: 1, nature: 1, perception: 1, survival: 1}, equipment: [{name: '', description: ''}, ...], features_and_traits: [{name: '', description: ''}, ...], personality: {traits: ['', ...], backstory: ''}, goals: ['', ...]}";
     
@@ -182,6 +167,7 @@ public class GeneratorService {
             return outputFile.getAbsolutePath();
         }
 
+        System.out.println("Response code:" + response.statusCode());
         return "Failed to generate hero apperance image.";
     }
 
