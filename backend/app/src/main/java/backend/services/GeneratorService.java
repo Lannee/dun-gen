@@ -25,10 +25,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import backend.DTO.CharacterDTO;
 import backend.exceptions.FailedRequest;
 import backend.model.Character;
 import backend.repository.CharacterRepository;
@@ -41,84 +41,16 @@ import lombok.RequiredArgsConstructor;
 public class GeneratorService {
     private static final String POST_URL = "http://ollama:11434/api/generate";
 
-    // @Value("${character-json-format}")
-    private final String characterJsonFormat = """
-        {
-            name: "",
-            class_name: "",
-            background: "",
-            alignment: "",
-            ability_scores: {
-                strength: 1,
-                dexterity: 1,
-                constitution: 1,
-                intelligence: 1,
-                wisdom: 1,
-                charisma: 1
-            },
-            skills: {
-                acrobatics: 1,
-                athletics: 1,
-                insight: 1,
-                intimidation: 1,
-                nature: 1,
-                perception: 1,
-                survival: 1
-            },
-            equipment: [
-                {
-                    name: "",
-                    description: ""
-                },
-                ...
-            ],
-            features_and_traits: [
-                {
-                    name: "",
-                    description: ""
-                },
-                ...
-            ],
-            personality: {
-                traits: [
-                    "", 
-                    ...
-                ],
-                backstory: ""
-            },
-            goals: [
-                "", 
-                ...
-            ]
-        }
-        """;
+    private final String characterJsonFormat = "{name: '', level: 1, experience: 0, class_name: '', race: '', background: '', alignment: '', ability_scores: {strength: 1, dexterity: 1, constitution: 1, intelligence: 1, wisdom: 1, charisma: 1}, skills: {acrobatics: 1, athletics: 1, insight: 1, intimidation: 1, nature: 1, perception: 1, survival: 1}, equipment: [{name: '', description: ''}, ...], features_and_traits: [{name: '', description: ''}, ...], personality: {traits: ['', ...], backstory: ''}, goals: ['', ...]}";
     
-    private final String character_format_explanation = """
-        name: The character's name.
-        class_name: The character's class (e.g., Warrior, Mage).
-        background: The character's background (e.g., Noble, Outlander).
-        alignment: The character's moral alignment (e.g., Lawful Good).
-        ability_scores: An object containing ability scores such as strength, dexterity, etc.
-        skills: An object containing skill proficiency levels.
-        equipment: An array of objects representing the character's equipment.
-        features_and_traits: An array of objects detailing special features and traits.
-        personality: An object containing personality traits and backstory.
-        goals: An array of strings representing the character's goals.
-    """;
+    private final String character_format_explanation = "name: The character's name. level: The character's current level. experience: The character's current experience (must correspond to level).  class_name: The character's class (e.g., Warrior, Mage). race: The character's race (e.g., Elf, Dwarf, Human). background: The character's background (e.g., Noble, Outlander). alignment: The character's moral alignment (e.g., Lawful Good). ability_scores: An object containing ability scores such as strength, dexterity, etc. skills: An object containing skill proficiency levels. equipment: An array of objects representing the character's equipment. features_and_traits: An array of objects detailing special features and traits. personality: An object containing personality traits and backstory. goals: An array of strings representing the character's goals.";
 
-    private final String use_preset_prompt = """
-        Use the folowing description as a base for generation: {0}
-    """;
+    private final String use_preset_prompt = "Use the folowing description as a base for generation: {0}";
 
-    private final String generate_base = """
-        generate Dungeons and Dragons 5 edition character as a json sample with the following scheme:
-        where: {0}
+    private final String generate_base = "generate detailed level appropriate (with large backstory) Dungeons and Dragons 5 edition character description (add spells, weapons, items, skills and other things he could have) as a json sample with the following scheme: {0} where: {1} {2} Respond just with generated json, no extra comments needed. Please";
 
-        {1}
 
-        {2}
-        respond just with generated json, no extra comments needed. Please
-    """;
+    private final String regenerate_base = "regenerate Dungeons and Dragons 5 edition character description according to what have changed using some rules: Use the same json format. Changes must correspond with dnd 5e rules. If Level has changed recount all numeric abilities and skills according to new value. If class or rase have changes recount all numeric characteristics features and traits according to new values. If alignmet or background have changed and at the same time backstory was edited, rewrite backstory according to new alignmet or background. All other fields (equipment, goals, and other) bring from new version. Old version: {0}. New version (changes): {1}. Respond just with generated json, no extra comments needed. Please";
 
     private final CharacterRepository characterRepository;
 
@@ -151,94 +83,54 @@ public class GeneratorService {
         return sendPOST(request);
     }
 
-    public Character generateCharacter() throws IOException, FailedRequest {
+    public Character generateCharacter() throws IOException, FailedRequest, InterruptedException {
         return generateCharacter("");
     }
 
     public Character generateCharacter(String description) 
         throws IOException, FailedRequest // TODO: Remove this throw declarations from all generate methods
+        , InterruptedException
         {
         String prompt = getFinalGeneratePrompt(description);
 
-        // String response = generateText(prompt);
-        String response = """
-        {
-            "name": "Eiravyn",
-            "class_name": "Warrior",
-            "background": "Noble",
-            "alignment": "Chaotic Good",
-            "ability_scores": {
-              "strength": 18,
-              "dexterity": 14,
-              "constitution": 16,
-              "intelligence": 10,
-              "wisdom": 12,
-              "charisma": 16
-            },
-            "skills": {
-              "acrobatics": 3,
-              "athletics": 5,
-              "insight": 2,
-              "intimidation": 4,
-              "nature": 1,
-              "perception": 3,
-              "survival": 2
-            },
-            "equipment": [
-              {
-                "name": "Longsword",
-                "description": "A finely crafted longsword with a silver-plated hilt"
-              },
-              {
-                "name": "Leather armor",
-                "description": "A suit of supple leather armor, perfect for mobility"
-              },
-              {
-                "name": "Shield",
-                "description": "A sturdy shield emblazoned with the family crest"
-              }
-            ],
-            "features_and_traits": [
-              {
-                "name": "Tall and Strong",
-                "description": "Eiravyn's exceptional height and physical strength make her a formidable opponent on the 
-          battlefield."
-              },
-              {
-                "name": "Noble Born",
-                "description": "As a noble, Eiravyn was raised with an air of confidence and an expectation to excel in all aspects 
-          of life."
-              }
-            ],
-            "personality": {
-              "traits": [
-                "Eiravyn is confident in her abilities and expects respect from those around her.",
-                "She has a strong sense of justice and will fiercely defend the innocent."
-              ],
-              "backstory": "Born into a noble family, Eiravyn was raised with every advantage. However, she grew tired of the 
-          expectations placed upon her and set out to forge her own path in life."
-            },
-            "goals": [
-              "Seek redemption for past mistakes",
-              "Protect the innocent from those who would harm them",
-              "Prove herself as a capable warrior"
-            ]
-          }
-        """;
+        String response = generateText(prompt);
         Character character = Character.fromJson(response);
-
-        characterRepository.save(character);
-
         return character;
     }
     
     protected String getFinalGeneratePrompt(String description) {
-        description = description.trim();
+        description = description.trim().replaceAll("\r", "").replaceAll("\n", "");
 
         return MessageFormat.format(generate_base, 
             /* {0} */ character_format_explanation,
             /* {1} */ characterJsonFormat,
             /* {2} */ description.isBlank() ? "" : MessageFormat.format(use_preset_prompt, description)
+        );
+    }
+
+
+    public Character regenerateCharacter(CharacterDTO changes) 
+        throws IOException, FailedRequest // TODO: Remove this throw declarations from all generate methods
+        , InterruptedException
+        {
+        Character oldCharacter = characterRepository.getReferenceById(changes.getId());
+
+        String prompt = getFinalRegeneratePrompt(changes, oldCharacter.toDTO());
+
+        System.out.println(prompt);
+
+        String response = generateText(prompt);
+        Character character = Character.fromJson(response);
+
+        character.setId(oldCharacter.getId());
+
+        return character;
+    }
+
+    protected String getFinalRegeneratePrompt(CharacterDTO changes, CharacterDTO oldVersion) {
+        return MessageFormat.format(regenerate_base, 
+            /* {0} */ oldVersion.toJson(),
+            /* {1} */ changes.toJson()
         );
     }
 }

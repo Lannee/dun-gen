@@ -18,7 +18,7 @@ services:
       POSTGRES_USER: "hibernateuser"
       POSTGRES_PASSWORD: "12345"
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - db-back
 
