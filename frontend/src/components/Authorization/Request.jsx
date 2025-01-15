@@ -16,7 +16,7 @@ export default function Request({ getToken }) {
             token: getToken()
         }
         msgs.current.clear();
-        axios.post(`http://localhost:8080/api/v1/admin/add`, data)
+        axios.post(`http://localhost:8080/api/admin/add`, data)
             .then(res => {
                 msgs.current.show([
                     { sticky: false, life: 2000, severity: 'success', summary: 'Success', detail: res.data.status, closable: false },

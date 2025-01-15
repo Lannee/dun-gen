@@ -23,7 +23,7 @@ export default function Login({ setToken }) {
             password
         }
         msgs.current.clear();
-        axios.post(`http://localhost:8080/api/v1/auth/login`, credentials)
+        axios.post(`http://localhost:8080/api/auth/login`, credentials)
             .then(res => {
                 console.log(res.data);
                 setToken(res.data.token);

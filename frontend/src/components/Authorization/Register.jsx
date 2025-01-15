@@ -29,7 +29,7 @@ export default function Register() {
             password
         }
         msgs.current.clear();
-        axios.post(`http://localhost:8080/api/v1/users/register`, credentials)
+        axios.post(`http://localhost:8080/api/users/register`, credentials)
             .then(res => {
                 console.log(res.data);
                 msgs.current.show([
