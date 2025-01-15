@@ -3,7 +3,10 @@ package backend.services;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -18,6 +21,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +43,11 @@ import lombok.RequiredArgsConstructor;
 // @Configuration
 // @ConfigurationProperties(prefix = "prompts")
 public class GeneratorService {
+    private MinioService minioService;
+
     private static final String POST_URL = "http://ollama:11434/api/generate";
+    private static final String STABILITY_API_URL = "https://api.stability.ai/v2beta/stable-image/generate/sd3";
+    private static final String AUTHORIZATION_TOKEN = "Bearer TOKEN";
 
     private final String characterJsonFormat = "{name: '', level: 1, experience: 0, class_name: '', race: '', background: '', alignment: '', ability_scores: {strength: 1, dexterity: 1, constitution: 1, intelligence: 1, wisdom: 1, charisma: 1}, skills: {acrobatics: 1, athletics: 1, insight: 1, intimidation: 1, nature: 1, perception: 1, survival: 1}, equipment: [{name: '', description: ''}, ...], features_and_traits: [{name: '', description: ''}, ...], personality: {traits: ['', ...], backstory: ''}, goals: ['', ...]}";
     
@@ -132,5 +140,53 @@ public class GeneratorService {
             /* {0} */ oldVersion.toJson(),
             /* {1} */ changes.toJson()
         );
+    }
+
+    private static String generateImage(String prompt) throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+
+        String boundary = "----WebKitFormBoundary" + System.currentTimeMillis();
+        String CRLF = "\r\n"; // Line separator required by multipart/form-data.
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(STABILITY_API_URL))
+                .header("Authorization", AUTHORIZATION_TOKEN)
+                .header("Accept", "image/*")
+                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .POST(HttpRequest.BodyPublishers.ofString(
+                        "--" + boundary + CRLF +
+                        "Content-Disposition: form-data; name=\"prompt\"" + CRLF +
+                        CRLF +
+                        prompt + CRLF +
+                        "--" + boundary + CRLF +
+                        "Content-Disposition: form-data; name=\"output_format\"" + CRLF +
+                        CRLF +
+                        "jpeg" + CRLF +
+                        "--" + boundary + "--" + CRLF
+                ))
+                .build();
+
+        HttpResponse<InputStream> response = client.send(request, BodyHandlers.ofInputStream());
+
+        if (response.statusCode() == 200) {
+            // Save image locally
+            File outputFile = new File("./lighthouse.jpeg");
+            try (InputStream inputStream = response.body();
+                 FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+            }
+            return outputFile.getAbsolutePath();
+        }
+
+        return "Failed to generate hero apperance image.";
+    }
+
+    public String getGeneratedImage(String prompt) {
+        
+        // return minioService.putObject("", new LinkedList<>().add(generateImage(prompt)));
     }
 }
