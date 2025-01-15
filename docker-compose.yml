@@ -19,6 +19,8 @@ services:
       POSTGRES_PASSWORD: "12345"
     ports:
       - "5432:5432"
+    networks:
+      - db-back
 
   minio:
     image: minio/minio:latest
@@ -28,6 +30,18 @@ services:
       - "9001:9001"  # MinIO Console port
     volumes:
       - minio_data:/data  # Persistent storage
+    networks:
+      - minio-back
+
+  ollama-neuro:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - 11434:11434
+    volumes:
+      - ollama:/root/.ollama
+    networks:
+      - ollama-back
 
   backend:
     build:
@@ -38,8 +52,21 @@ services:
     depends_on:
       - db
       - minio
+      - ollama-neuro
+    networks:
+      - ollama-back
+      - db-back
+      - minio-back
 
 volumes:
   postgresql:
   minio_data:
   ollama:
+
+networks:
+  ollama-back:
+    driver: bridge
+  db-back:
+    driver: bridge
+  minio-back:
+    driver: bridge
