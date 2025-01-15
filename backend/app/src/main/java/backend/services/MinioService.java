@@ -34,6 +34,9 @@ import backend.model.Import;
 import backend.model.ImportStatus;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -206,33 +209,50 @@ public class MinioService {
     }
 
     @SneakyThrows
-    public Import putObject(MultipartFile multipartFile, String bucketName, String username, long count) {
+    public void putObject(String filePath, String bucketName) {
         bucketName = StringUtils.isNotBlank(bucketName) ? bucketName : minioProperties.getBucketName();
 
         if (!this.bucketExists(bucketName)) {
             this.makeBucket(bucketName);
         }
 
-        String fileName = multipartFile.getOriginalFilename();
+
+        File file = new File(filePath);
+        if (!file.exists() || !file.isFile()) {
+            throw new IOException("File not found: " + filePath);
+        }
 
         LocalDateTime timeCreated = LocalDateTime.now();
+        String objectName = timeCreated.toString() + "_" + file.getName(); // Use underscore for better readability
 
-        String objectName = timeCreated.toString()
-                + fileName.substring(fileName.lastIndexOf("."));
+        try (FileInputStream fis = new FileInputStream(file)) {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .stream(fis, file.length(), -1)
+                            .build());
+        }
 
-        minioClient.putObject(
-                PutObjectArgs.builder().bucket(bucketName).object(objectName).stream(
-                    multipartFile.getInputStream(), multipartFile.getSize(), -1)
-                        .contentType(multipartFile.getContentType())
-                        .build());
+        // String fileName = multipartFile.getOriginalFilename();
 
-        return Import.builder()
-                     .status(ImportStatus.SUCCESSFUL)
-                     .userName(username)
-                     .count(count)
-                     .time(timeCreated)
-                     .objectName(objectName)
-                     .build();
+        // LocalDateTime timeCreated = LocalDateTime.now();
+
+        // String objectName = timeCreated.toString()
+        //         + fileName.substring(fileName.lastIndexOf("."));
+
+        // minioClient.putObject(
+        //         PutObjectArgs.builder().bucket(bucketName).object(objectName).stream(
+        //             multipartFile.getInputStream(), multipartFile.getSize(), -1)
+        //                 .contentType(multipartFile.getContentType())
+        //                 .build());
+
+        // return Import.builder()
+        //              .status(ImportStatus.SUCCESSFUL)
+        //              .userName(username)
+        //              .time(timeCreated)
+        //              .objectName(objectName)
+        //              .build();
     }
 
     @SneakyThrows

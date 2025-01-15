@@ -23,6 +23,11 @@ public class User {
     @Column(name = "password", nullable = false, length = 256)
     private String password;
 
-    @Column(name = "salt", nullable = false, length = 256)
-    private String salt;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "admin_status", nullable = false)
+    private UsersAdminStatus adminStatus;
+    
+    public boolean isAdmin() {
+        return this.getAdminStatus() == UsersAdminStatus.ADMIN;
+    }
 }

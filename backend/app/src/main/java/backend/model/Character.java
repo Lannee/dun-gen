@@ -68,7 +68,7 @@ public class Character {
     private List<String> goals;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public static Character fromJson(String jsonCharacter) throws JsonMappingException, JsonProcessingException {

@@ -41,6 +41,17 @@ public class GeneratorController {
         });
     }
 
+    @PostMapping(path = "/img")
+    public ResponseEntity<?> generateImg(@RequestBody GeneratorDTO req) throws NotFoundException, IOException {
+        TokenValidator validator = new TokenValidator(jwtUtils).validateToken(req);
+
+        return ControllerExecutor.execute(validator, () -> {
+            String response = generatorService.getGeneratedImage(req.getPrompt());
+
+            return ResponseEntity.ok().body(response);
+        });
+    }
+
     @PostMapping(path = "/character/generate")
     public ResponseEntity<?> generateCharacter(@RequestBody GeneratorDTO req) throws NotFoundException {
         TokenValidator validator = new TokenValidator(jwtUtils).validateToken(req);

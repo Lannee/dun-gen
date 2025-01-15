@@ -43,7 +43,7 @@ import lombok.RequiredArgsConstructor;
 // @Configuration
 // @ConfigurationProperties(prefix = "prompts")
 public class GeneratorService {
-    private MinioService minioService;
+    private final MinioService minioService;
 
     private static final String POST_URL = "http://ollama:11434/api/generate";
     private static final String STABILITY_API_URL = "https://api.stability.ai/v2beta/stable-image/generate/sd3";
@@ -142,7 +142,7 @@ public class GeneratorService {
         );
     }
 
-    private static String generateImage(String prompt) throws IOException, InterruptedException {
+    private static String generateImage(String prompt, String filename) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
 
         String boundary = "----WebKitFormBoundary" + System.currentTimeMillis();
@@ -170,7 +170,7 @@ public class GeneratorService {
 
         if (response.statusCode() == 200) {
             // Save image locally
-            File outputFile = new File("./lighthouse.jpeg");
+            File outputFile = new File(filename);
             try (InputStream inputStream = response.body();
                  FileOutputStream outputStream = new FileOutputStream(outputFile)) {
                 byte[] buffer = new byte[1024];
@@ -185,8 +185,12 @@ public class GeneratorService {
         return "Failed to generate hero apperance image.";
     }
 
-    public String getGeneratedImage(String prompt) {
-        
-        // return minioService.putObject("", new LinkedList<>().add(generateImage(prompt)));
+    public String getGeneratedImage(String prompt) throws IOException, InterruptedException {
+        // minioService.makeBucket("images");
+        String filename = "image.jpeg";
+        String result = generateImage(prompt, filename);
+        minioService.putObject(result, "");
+
+        return result;
     }
 }
